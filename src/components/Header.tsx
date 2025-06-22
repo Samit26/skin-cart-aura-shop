@@ -2,9 +2,19 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Search, ShoppingCart, User } from 'lucide-react';
+import SearchBar from './SearchBar';
 
 const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [cartCount, setCartCount] = useState(2); // Mock cart count
+
+  const handleSearch = (query: string) => {
+    console.log('Searching for:', query);
+    // Navigate to products page with search query
+    if (query) {
+      window.location.href = `/products?search=${encodeURIComponent(query)}`;
+    }
+  };
 
   return (
     <>
@@ -32,7 +42,7 @@ const Header = () => {
               <Link to="/products" className="hover:text-cyber-yellow transition-colors">
                 Products
               </Link>
-              <Link to="/brands" className="hover:text-cyber-yellow transition-colors">
+              <Link to="/products?brand=all" className="hover:text-cyber-yellow transition-colors">
                 Brands
               </Link>
               <Link to="/about" className="hover:text-cyber-yellow transition-colors">
@@ -41,19 +51,34 @@ const Header = () => {
               <Link to="/contact" className="hover:text-cyber-yellow transition-colors">
                 Contact
               </Link>
+              <Link to="/track-order" className="hover:text-cyber-yellow transition-colors">
+                Track Order
+              </Link>
             </nav>
 
-            {/* Right Side Icons */}
+            {/* Search & Icons */}
             <div className="flex items-center space-x-4">
-              <button className="p-2 hover:bg-gray-800 rounded-lg transition-colors">
+              {/* Search Bar */}
+              <div className="hidden md:block">
+                <SearchBar onSearch={handleSearch} />
+              </div>
+              
+              {/* Mobile Search Button */}
+              <button className="md:hidden p-2 hover:bg-gray-800 rounded-lg transition-colors">
                 <Search size={20} />
               </button>
+
+              {/* Cart */}
               <Link to="/cart" className="p-2 hover:bg-gray-800 rounded-lg transition-colors relative">
                 <ShoppingCart size={20} />
-                <span className="absolute -top-1 -right-1 bg-cyber-yellow text-jet-black text-xs rounded-full w-5 h-5 flex items-center justify-center font-bold">
-                  0
-                </span>
+                {cartCount > 0 && (
+                  <span className="absolute -top-1 -right-1 bg-cyber-yellow text-jet-black text-xs rounded-full w-5 h-5 flex items-center justify-center font-bold">
+                    {cartCount}
+                  </span>
+                )}
               </Link>
+
+              {/* Account */}
               <Link to="/account" className="p-2 hover:bg-gray-800 rounded-lg transition-colors">
                 <User size={20} />
               </Link>
@@ -75,18 +100,46 @@ const Header = () => {
           {/* Mobile Menu */}
           {isMenuOpen && (
             <div className="md:hidden pb-4 animate-fade-in">
+              {/* Mobile Search */}
+              <div className="mb-4">
+                <SearchBar onSearch={handleSearch} />
+              </div>
+              
               <nav className="flex flex-col space-y-2">
-                <Link to="/products" className="py-2 hover:text-cyber-yellow transition-colors">
+                <Link 
+                  to="/products" 
+                  className="py-2 hover:text-cyber-yellow transition-colors"
+                  onClick={() => setIsMenuOpen(false)}
+                >
                   Products
                 </Link>
-                <Link to="/brands" className="py-2 hover:text-cyber-yellow transition-colors">
+                <Link 
+                  to="/products?brand=all" 
+                  className="py-2 hover:text-cyber-yellow transition-colors"
+                  onClick={() => setIsMenuOpen(false)}
+                >
                   Brands
                 </Link>
-                <Link to="/about" className="py-2 hover:text-cyber-yellow transition-colors">
+                <Link 
+                  to="/about" 
+                  className="py-2 hover:text-cyber-yellow transition-colors"
+                  onClick={() => setIsMenuOpen(false)}
+                >
                   About
                 </Link>
-                <Link to="/contact" className="py-2 hover:text-cyber-yellow transition-colors">
+                <Link 
+                  to="/contact" 
+                  className="py-2 hover:text-cyber-yellow transition-colors"
+                  onClick={() => setIsMenuOpen(false)}
+                >
                   Contact
+                </Link>
+                <Link 
+                  to="/track-order" 
+                  className="py-2 hover:text-cyber-yellow transition-colors"
+                  onClick={() => setIsMenuOpen(false)}
+                >
+                  Track Order
                 </Link>
               </nav>
             </div>
