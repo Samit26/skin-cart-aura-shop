@@ -61,7 +61,7 @@
   }
   
   .product-card {
-    @apply bg-white rounded-xl p-4 shadow-sm hover:shadow-md transition-all duration-300 hover:scale-102 cursor-pointer;
+    @apply bg-white rounded-xl p-4 shadow-sm hover:shadow-md transition-all duration-300 hover:scale-105 cursor-pointer;
   }
   
   .section-padding {
