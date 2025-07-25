@@ -4,6 +4,7 @@ import React, {
   useState,
   useEffect,
   ReactNode,
+  useCallback,
 } from "react";
 import { useAuth } from "@clerk/clerk-react";
 import { cartAPI } from "../services/api";
@@ -51,7 +52,7 @@ export const CartProvider: React.FC<{ children: ReactNode }> = ({
   const [error, setError] = useState<string | null>(null);
 
   // Load cart from API
-  const loadCart = async () => {
+  const loadCart = useCallback(async () => {
     setLoading(true);
     setError(null);
     try {
@@ -68,40 +69,43 @@ export const CartProvider: React.FC<{ children: ReactNode }> = ({
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
 
   // Add item to cart
-  const addToCart = async (
-    productId: string,
-    selectedBrand: string = "Select Brand",
-    selectedModel: string = "Select Model",
-    selectedBundle: string = "single",
-    quantity: number = 1
-  ) => {
-    setLoading(true);
-    setError(null);
-    try {
-      const response = await cartAPI.addToCart({
-        productId,
-        selectedBrand,
-        selectedModel,
-        selectedBundle,
-        quantity,
-      });
-      if (response.success && response.data) {
-        setCart(response.data);
-      } else {
-        setError(response.message || "Failed to add item to cart");
+  const addToCart = useCallback(
+    async (
+      productId: string,
+      selectedBrand: string = "Select Brand",
+      selectedModel: string = "Select Model",
+      selectedBundle: string = "single",
+      quantity: number = 1
+    ) => {
+      setLoading(true);
+      setError(null);
+      try {
+        const response = await cartAPI.addToCart({
+          productId,
+          selectedBrand,
+          selectedModel,
+          selectedBundle,
+          quantity,
+        });
+        if (response.success && response.data) {
+          setCart(response.data);
+        } else {
+          setError(response.message || "Failed to add item to cart");
+        }
+      } catch (err) {
+        setError(err instanceof Error ? err.message : "An error occurred");
+      } finally {
+        setLoading(false);
       }
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "An error occurred");
-    } finally {
-      setLoading(false);
-    }
-  };
+    },
+    []
+  );
 
   // Remove item from cart
-  const removeFromCart = async (itemId: string) => {
+  const removeFromCart = useCallback(async (itemId: string) => {
     setLoading(true);
     setError(null);
     try {
@@ -116,58 +120,60 @@ export const CartProvider: React.FC<{ children: ReactNode }> = ({
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
 
   // Update item quantity
-  const updateQuantity = async (itemId: string, quantity: number) => {
-    if (quantity <= 0) {
-      await removeFromCart(itemId);
-      return;
-    }
-
-    setLoading(true);
-    setError(null);
-    try {
-      const response = await cartAPI.updateCartItem(itemId, { quantity });
-      if (response.success && response.data) {
-        setCart(response.data);
-      } else {
-        setError(response.message || "Failed to update item quantity");
+  const updateQuantity = useCallback(
+    async (itemId: string, quantity: number) => {
+      if (quantity <= 0) {
+        await removeFromCart(itemId);
+        return;
       }
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "An error occurred");
-    } finally {
-      setLoading(false);
-    }
-  };
+
+      setLoading(true);
+      setError(null);
+      try {
+        const response = await cartAPI.updateCartItem(itemId, { quantity });
+        if (response.success && response.data) {
+          setCart(response.data);
+        } else {
+          setError(response.message || "Failed to update item quantity");
+        }
+      } catch (err) {
+        setError(err instanceof Error ? err.message : "An error occurred");
+      } finally {
+        setLoading(false);
+      }
+    },
+    [removeFromCart]
+  );
 
   // Update device model
-  const updateDeviceModel = async (
-    itemId: string,
-    selectedBrand: string,
-    selectedModel: string
-  ) => {
-    setLoading(true);
-    setError(null);
-    try {
-      const response = await cartAPI.updateCartItem(itemId, {
-        selectedBrand,
-        selectedModel,
-      });
-      if (response.success && response.data) {
-        setCart(response.data);
-      } else {
-        setError(response.message || "Failed to update device model");
+  const updateDeviceModel = useCallback(
+    async (itemId: string, selectedBrand: string, selectedModel: string) => {
+      setLoading(true);
+      setError(null);
+      try {
+        const response = await cartAPI.updateCartItem(itemId, {
+          selectedBrand,
+          selectedModel,
+        });
+        if (response.success && response.data) {
+          setCart(response.data);
+        } else {
+          setError(response.message || "Failed to update device model");
+        }
+      } catch (err) {
+        setError(err instanceof Error ? err.message : "An error occurred");
+      } finally {
+        setLoading(false);
       }
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "An error occurred");
-    } finally {
-      setLoading(false);
-    }
-  };
+    },
+    []
+  );
 
   // Clear cart
-  const clearCart = async () => {
+  const clearCart = useCallback(async () => {
     setLoading(true);
     setError(null);
     try {
@@ -183,10 +189,10 @@ export const CartProvider: React.FC<{ children: ReactNode }> = ({
     } finally {
       setLoading(false);
     }
-  };
+  }, [cart]);
 
   // Apply promo code
-  const applyPromoCode = async (code: string) => {
+  const applyPromoCode = useCallback(async (code: string) => {
     setLoading(true);
     setError(null);
     try {
@@ -201,10 +207,10 @@ export const CartProvider: React.FC<{ children: ReactNode }> = ({
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
 
   // Remove promo code
-  const removePromoCode = async () => {
+  const removePromoCode = useCallback(async () => {
     setLoading(true);
     setError(null);
     try {
@@ -219,22 +225,27 @@ export const CartProvider: React.FC<{ children: ReactNode }> = ({
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
 
   // Get cart total
-  const getCartTotal = (): number => {
+  const getCartTotal = useCallback((): number => {
     return cart?.totalAmount || 0;
-  };
+  }, [cart]);
 
   // Get cart items count
-  const getCartCount = (): number => {
+  const getCartCount = useCallback((): number => {
     return cart?.items?.reduce((total, item) => total + item.quantity, 0) || 0;
-  };
+  }, [cart]);
 
   // Check if product is in cart
-  const isInCart = (productId: string): boolean => {
-    return cart?.items?.some((item) => item.product._id === productId) || false;
-  };
+  const isInCart = useCallback(
+    (productId: string): boolean => {
+      return (
+        cart?.items?.some((item) => item.product._id === productId) || false
+      );
+    },
+    [cart]
+  );
 
   // Load cart on mount if user is authenticated (Clerk)
   const { isSignedIn } = useAuth();
@@ -242,7 +253,7 @@ export const CartProvider: React.FC<{ children: ReactNode }> = ({
     if (isSignedIn) {
       loadCart();
     }
-  }, [isSignedIn]);
+  }, [isSignedIn, loadCart]);
 
   const value: CartContextType = {
     cart,
