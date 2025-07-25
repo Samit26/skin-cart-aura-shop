@@ -7,7 +7,7 @@ import { ProductProvider } from "@/contexts/ProductContextNew";
 import { CartProvider } from "@/contexts/CartContextNew";
 import { ClerkAuthProvider } from "@/contexts/ClerkAuthContext";
 import { useIsMobile } from "@/hooks/useIsMobile";
-import { useAuth } from "@/hooks/useAuth";
+import { useAuth } from "@clerk/clerk-react";
 import { useEffect } from "react";
 import { setClerkTokenProvider } from "@/services/api";
 import ScrollToTop from "@/components/ScrollToTop";
@@ -26,7 +26,7 @@ const queryClient = new QueryClient();
 
 // Component to set up Clerk token provider
 const ClerkTokenSetup = ({ children }: { children: React.ReactNode }) => {
-  const { getToken, signOut } = useAuth();
+  const { getToken } = useAuth();
 
   useEffect(() => {
     // Configure the API service to use Clerk tokens
@@ -35,13 +35,10 @@ const ClerkTokenSetup = ({ children }: { children: React.ReactNode }) => {
         return await getToken();
       } catch (error) {
         console.error("Error getting Clerk token:", error);
-        // If we can't get a token, it might mean the user is logged out.
-        // It's safer to sign them out completely.
-        signOut();
         return null;
       }
     });
-  }, [getToken, signOut]);
+  }, [getToken]);
 
   return <>{children}</>;
 };
